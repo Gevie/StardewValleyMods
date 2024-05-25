@@ -1,0 +1,10 @@
+{
+  "Name": "Persistent Multiplayer (Dedicated & Local)",
+  "Author": "Gevie",
+  "Version": "0.1.0",
+  "Description": "An enhanced mod for 24/7 persistent multiplayer sessions, supporting both dedicated servers and local hosting in Stardew Valley.",
+  "UniqueID": "Gevie.PersistentMultiplayer",
+  "EntryDll": "PersistentMultiplayer.dll",
+  "MinimumApiVersion": "3.0.0",
+  "UpdateKeys": []
+}

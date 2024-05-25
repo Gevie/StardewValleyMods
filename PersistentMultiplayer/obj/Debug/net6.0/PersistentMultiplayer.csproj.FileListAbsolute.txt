@@ -1,0 +1,8 @@
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\bin\Debug\net6.0\PersistentMultiplayer.deps.json
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\bin\Debug\net6.0\PersistentMultiplayer.dll
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.csproj.AssemblyReference.cache
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.AssemblyInfoInputs.cache
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.AssemblyInfo.cs
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.csproj.CoreCompileInputs.cache
+D:\Stardew Mods\My Mods\PersistentMultiplayer\PersistentMultiplayer\obj\Debug\net6.0\PersistentMultiplayer.dll
