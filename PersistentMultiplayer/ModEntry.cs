@@ -1,32 +1,32 @@
-﻿using System.Diagnostics;
-using Microsoft.Xna.Framework;
-using PersistentMultiplayer.Framework;
+﻿using PersistentMultiplayer.Framework;
+using PersistentMultiplayer.Framework.Configuration;
 using PersistentMultiplayer.Integrations.GenericModConfigMenu;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Locations;
-using StardewValley.Objects;
-using StardewValley.Pathfinding;
 
 namespace PersistentMultiplayer
 {
     internal class ModEntry : Mod
     {
-        private ModConfig ModConfig = null!;
-        private ModConfigKeys ModConfigKeys => this.ModConfig.Controls;
-        private ServerSettings ServerSettings => this.ModConfig.ServerSettings;
-        
-        // private Vector2 BedLocation = new Vector2(5, 4);
+        private HostCharacter HostCharacter;
+        private ModConfig _modConfig = null!;
+        private ModConfigKeys ModConfigKeys => this._modConfig.Controls;
+        private bool ServerMode { get; set; } = false;
+        private ServerSettings ServerSettings => this._modConfig.ServerSettings;
+        private SleepScheduler SleepScheduler;
         
         public override void Entry(IModHelper helper)
         {
-            this.ModConfig = this.LoadModConfig();
+            this._modConfig = this.LoadModConfig();
+            this.HostCharacter = new HostCharacter(helper, this.Monitor);
+            this.SleepScheduler = new SleepScheduler(helper, this._modConfig.ServerSettings);
 
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
             helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked;
+            helper.Events.Input.ButtonsChanged += this.OnButtonsChanged;
         }
         
         private ModConfig LoadModConfig()
@@ -34,59 +34,65 @@ namespace PersistentMultiplayer
             return this.Helper.ReadConfig<ModConfig>();
         }
 
+        private void OnButtonsChanged(object? sender, ButtonsChangedEventArgs buttonsChangedEventArguments)
+        {
+            if (!Context.IsWorldReady) {
+                return;
+            }
+
+            if (this.ModConfigKeys.ToggleServer.JustPressed()) {
+                this.ToggleServer();
+                return;
+            }
+
+            if (this.ModConfigKeys.TogglePause.JustPressed()) {
+                TogglePause();
+            }
+        }
+
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs gameLaunchedEventArguments)
         {
             this.SetupGenericModConfigMenu();
         }
-
-        private void SetupGenericModConfigMenu()
-        {
-            var menuIntegration = new GenericModConfigMenuIntegration(this.ModManifest, this.Helper.ModRegistry, this.ModConfig);
-            menuIntegration.SetupGenericModConfigMenu(
-                () => this.Helper.WriteConfig(this.ModConfig)
-            );
-        }
         
         private void OnSaveLoaded(object? sender, SaveLoadedEventArgs saveLoadedEventArguments)
         {
-            // this.PlaceBedForDedicatedHost();
+            // Do nothing right now.
         }
 
         private void OnUpdateTicked(object? sender, UpdateTickedEventArgs updateTickedEventArguments)
         {
-            // Do nothing right now.
         }
 
         private void OnOneSecondUpdateTicked(object? sender, OneSecondUpdateTickedEventArgs oneSecondUpdateTickedEventArguments)
         {
-            // Do nothing right now.
+            if (!this.SleepScheduler.IsBedTime()) {
+                this.Monitor.Log("It is currently bedtime.", LogLevel.Alert);
+                this.HostCharacter.GoToSleep();
+            }
         }
 
-        // private void PlaceBedForDedicatedHost()
-        // {
-        //     FarmHouse? farmHouse = Game1.getLocationFromName("FarmHouse") as FarmHouse;
-        //     if (farmHouse == null)
-        //     {
-        //         this.Monitor.Log("Unable to find FarmHouse location.", LogLevel.Error);
-        //         return;
-        //     }
-        //     
-        //     if (!farmHouse.isTileLocationOpen(this.BedLocation))
-        //     {
-        //         this.Monitor.Log("The chosen location for the host bed is not available.", LogLevel.Error);
-        //         return;
-        //     }
-        //
-        //     BedFurniture hostBed = new BedFurniture("2052", this.BedLocation, 0);
-        //     farmHouse.furniture.Add(hostBed);
-        // }
-        //
-        // private void GoToSleep()
-        // {
-        //     // Game1.warpFarmer("Farmhouse", (int) this.BedLocation.X, (int) this.BedLocation.Y, false);
-        //     // BedFurniture.ShiftPositionForBed(Game1.player);
-        //     Game1.player.isInBed.Value = true;
-        //     Helper.Reflection.GetMethod(Game1.currentLocation, "startSleep").Invoke();
-        // }
+        private void SetupGenericModConfigMenu()
+        {
+            var menuIntegration = new GenericModConfigMenuIntegration(
+                this.ModManifest, 
+                this.Helper.ModRegistry, 
+                this._modConfig
+            );
+            
+            menuIntegration.SetupGenericModConfigMenu(
+                save: () => this.Helper.WriteConfig(this._modConfig)
+            );
+        }
+
+        private void ToggleServer()
+        {
+            this.ServerMode = !this.ServerMode;
+        }
+
+        private static void TogglePause()
+        {
+            Game1.netWorldState.Value.IsPaused = !Game1.netWorldState.Value.IsPaused;
+        }
     }
 }

@@ -1,14 +1,9 @@
 ﻿using System.Runtime.Serialization;
 
-namespace PersistentMultiplayer.Framework
+namespace PersistentMultiplayer.Framework.Configuration
 {
     internal class ModConfig
     {
-        /**
-         * Accessors
-         */
-        public bool DedicatedMode { get; set; } = false;
-
         public ServerSettings ServerSettings { get; set; } = new();
         
         public ModConfigKeys Controls { get; set; } = new();

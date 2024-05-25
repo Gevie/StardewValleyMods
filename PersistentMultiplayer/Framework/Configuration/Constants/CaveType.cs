@@ -1,4 +1,4 @@
-﻿namespace PersistentMultiplayer.Framework
+﻿namespace PersistentMultiplayer.Framework.Configuration.Constants
 {
     public enum CaveType
     {

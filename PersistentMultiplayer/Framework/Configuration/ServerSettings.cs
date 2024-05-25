@@ -1,6 +1,6 @@
-﻿using StardewModdingAPI;
+﻿using PersistentMultiplayer.Framework.Configuration.Constants;
 
-namespace PersistentMultiplayer.Framework
+namespace PersistentMultiplayer.Framework.Configuration
 {
     internal class ServerSettings
     {
@@ -15,6 +15,10 @@ namespace PersistentMultiplayer.Framework
         
         public HouseUpgradeLevel HouseUpgradeLevel { get; set; } = HouseUpgradeLevel.None;
         
+        public bool LockPlayerChests { get; set; } = false;
+
+        public ServerMode ServerMode { get; set; } = ServerMode.Local;
+        
         public string PetName {
             get => this._petName;
             set => this.SetPetName(value);
@@ -26,8 +30,6 @@ namespace PersistentMultiplayer.Framework
         }
         
         public ProgressionChoice ProgressionChoice { get; set; } = ProgressionChoice.CommunityCenter;
-        
-        public bool LockPlayerChests { get; set; } = false;
 
         private string _hostCharacterSleepTime = "2200";
         
