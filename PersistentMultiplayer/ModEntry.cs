@@ -12,7 +12,7 @@ namespace PersistentMultiplayer
         private HostCharacter HostCharacter;
         private ModConfig _modConfig = null!;
         private ModConfigKeys ModConfigKeys => this._modConfig.Controls;
-        private bool ServerMode { get; set; } = false;
+        private bool ServerMode { get; set; }
         private ServerSettings ServerSettings => this._modConfig.ServerSettings;
         private SleepScheduler SleepScheduler;
         
@@ -57,18 +57,30 @@ namespace PersistentMultiplayer
         
         private void OnSaveLoaded(object? sender, SaveLoadedEventArgs saveLoadedEventArguments)
         {
-            // Do nothing right now.
+            // Debugging: We don't have to wait 12 in game hours to test sleeping code.
+            Game1.timeOfDay = 1810;
         }
 
         private void OnUpdateTicked(object? sender, UpdateTickedEventArgs updateTickedEventArguments)
         {
+            // Do nothing right now.
         }
 
         private void OnOneSecondUpdateTicked(object? sender, OneSecondUpdateTickedEventArgs oneSecondUpdateTickedEventArguments)
         {
-            if (!this.SleepScheduler.IsBedTime()) {
-                this.Monitor.Log("It is currently bedtime.", LogLevel.Alert);
+            this.Monitor.Log($"ServerMode : {this.ServerMode}", LogLevel.Alert);
+            if (!this.ServerMode) {
+                return;
+            }
+            
+            this.Monitor.Log($"Checking for bed time...", LogLevel.Alert);
+            if (this.SleepScheduler.IsBedTime()) {
+                this.Monitor.Log($"It is bed time, attempting to sleep.", LogLevel.Alert);
                 this.HostCharacter.GoToSleep();
+            }
+            else
+            {
+                this.Monitor.Log($"It isn't bed time...", LogLevel.Alert);
             }
         }
 
