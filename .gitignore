@@ -1,0 +1,23 @@
+# Ignore .vs directory created by Visual Studio
+.vs/
+
+# Ignore bin and obj directories
+bin/
+obj/
+
+# Ignore any packages directory
+packages/
+
+# Ignore user-specific files
+*.user
+*.userprefs
+
+# Ignore build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
