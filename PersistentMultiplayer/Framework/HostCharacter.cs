@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.Xna.Framework;
-using Netcode;
-using PersistentMultiplayer.Framework.Chat;
+﻿using PersistentMultiplayer.Framework.Chat;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -9,12 +6,14 @@ namespace PersistentMultiplayer.Framework
 {
     internal class HostCharacter
     {
+        public static bool IsSleeping { get; set; }
+        
         private readonly IModHelper _helper;
         private readonly IMonitor _monitor;
-        private static bool IsInBed => Game1.player.isInBed.Value;
-        private const int IsInBedTimeout = 6000;
-        private const int IsInBedCheckInterval = 100;
         private bool IsGoingToSleep { get; set; }
+        private static bool IsInBed => Game1.player.isInBed.Value;
+        private const int IsInBedTimeout = 10000;
+        private const int IsInBedCheckInterval = 100;
 
         public HostCharacter(IModHelper helper, IMonitor monitor)
         {
@@ -24,7 +23,7 @@ namespace PersistentMultiplayer.Framework
 
         public async void GoToSleep()
         {
-            if (this.IsGoingToSleep) {
+            if (this.IsGoingToSleep || HostCharacter.IsSleeping) {
                 return;
             }
 
@@ -38,8 +37,15 @@ namespace PersistentMultiplayer.Framework
 
         private async Task Sleep()
         {
-            this.WarpToBed();
+            // Introduction of async task for proper handling now means the player is being warped to the entrance
+            // of their farmhouse if they are not already in the farmhouse. The while loop will then timeout
+            // because HostCharacter.IsInBed is false, and providing the player has not left their home - the player
+            // will then successfully teleport to the bed and sleep because ModEntry triggered a new GoToSleep() call.
+            // The previous implementation just fired the events off wildly each applicable tick so this wasn't noticed.
+            // TODO: Check if the player is in their home or not and handle both warps with await / async implementation
+            // TODO: OR more preferably, implement the warp so that it always goes directly to the bed tile regardless.
             
+            this.WarpToBed();
             var timeElapsed = 0;
             while (!HostCharacter.IsInBed && timeElapsed < HostCharacter.IsInBedTimeout) {
                 await Task.Delay(HostCharacter.IsInBedCheckInterval);
@@ -60,12 +66,15 @@ namespace PersistentMultiplayer.Framework
             }
             
             this._helper.Reflection.GetMethod(farmhouse, "startSleep").Invoke();
+            
+            HostCharacter.IsSleeping = true;
             ChatMessenger.Send("I have gone to bed.");
         }
 
         private void WarpToBed()
         {
             if (HostCharacter.IsInBed) {
+                this._monitor.Log("Host character is already in bed.", LogLevel.Alert);
                 return;
             }
 
@@ -80,10 +89,9 @@ namespace PersistentMultiplayer.Framework
             }
             
             var bed = Utility.PointToVector2(homeOfFarmer.GetPlayerBedSpot()) * 64f;
-            this._monitor.Log("Warping character to bed, in bed should switch to true...", LogLevel.Trace);
             Game1.warpFarmer(
                 locationRequest: Game1.getLocationRequest(homeOfFarmer.NameOrUniqueName), 
-                tileX: (int) (bed.X) / 64, 
+                tileX: (int) bed.X / 64, 
                 tileY: (int) bed.Y / 64, 
                 facingDirectionAfterWarp: 2
             );

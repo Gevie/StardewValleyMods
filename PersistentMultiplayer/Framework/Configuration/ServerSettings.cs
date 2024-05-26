@@ -6,7 +6,7 @@ namespace PersistentMultiplayer.Framework.Configuration
     {
         public CaveType CaveType { get; set; } = CaveType.Mushroom;
         
-        public bool FarmhandsCanPause { get; set; } = false;
+        public bool FarmhandsCanPause { get; set; }
         
         public string HostCharacterSleepTime {
             get => this._hostCharacterSleepTime;
@@ -15,7 +15,7 @@ namespace PersistentMultiplayer.Framework.Configuration
         
         public HouseUpgradeLevel HouseUpgradeLevel { get; set; } = HouseUpgradeLevel.None;
         
-        public bool LockPlayerChests { get; set; } = false;
+        public bool LockPlayerChests { get; set; }
 
         public ServerMode ServerMode { get; set; } = ServerMode.Local;
         

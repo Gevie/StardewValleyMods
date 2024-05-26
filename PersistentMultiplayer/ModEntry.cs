@@ -10,23 +10,24 @@ namespace PersistentMultiplayer
 {
     internal class ModEntry : Mod
     {
-        private HostCharacter _hostCharacter;
+        private HostCharacter _hostCharacter = null!;
         private ModConfig _modConfig = null!;
         private ModConfigKeys ModConfigKeys => this._modConfig.Controls;
         private bool ServerMode { get; set; }
         private ServerSettings ServerSettings => this._modConfig.ServerSettings;
-        private SleepScheduler _sleepScheduler;
+        private SleepScheduler _sleepScheduler = null!;
         
         public override void Entry(IModHelper helper)
         {
             this._modConfig = this.LoadModConfig();
             
             this._hostCharacter = new HostCharacter(helper, this.Monitor);
-            this._sleepScheduler = new SleepScheduler(helper, this._modConfig.ServerSettings);
+            this._sleepScheduler = new SleepScheduler(this.ServerSettings);
 
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked;
+            helper.Events.GameLoop.DayStarted += this.OnDayStarted;
             helper.Events.Input.ButtonsChanged += this.OnButtonsChanged;
         }
         
@@ -51,6 +52,11 @@ namespace PersistentMultiplayer
             }
         }
 
+        private void OnDayStarted(object? sender, DayStartedEventArgs dayStartedEventArguments)
+        {
+            HostCharacter.IsSleeping = false;
+        }
+
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs gameLaunchedEventArguments)
         {
             this.SetupGenericModConfigMenu();
@@ -68,7 +74,7 @@ namespace PersistentMultiplayer
                 return;
             }
             
-            if (this._sleepScheduler.IsBedTime()) {
+            if (this._sleepScheduler.IsBedTime() && !HostCharacter.IsSleeping) {
                 this._hostCharacter.GoToSleep();
             }
         }

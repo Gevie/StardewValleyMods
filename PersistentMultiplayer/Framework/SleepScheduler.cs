@@ -1,18 +1,14 @@
 ﻿using PersistentMultiplayer.Framework.Configuration;
-using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Menus;
 
 namespace PersistentMultiplayer.Framework
 {
     internal class SleepScheduler
     {
-        private IModHelper _helper;
-        private ServerSettings _serverSettings;
+        private readonly ServerSettings _serverSettings;
 
-        public SleepScheduler(IModHelper helper, ServerSettings serverSettings)
+        public SleepScheduler(ServerSettings serverSettings)
         {
-            this._helper = helper;
             this._serverSettings = serverSettings;
         }
 
