@@ -1,5 +1,6 @@
 ﻿using PersistentMultiplayer.Framework.Configuration;
 using PersistentMultiplayer.Framework.Configuration.Constants;
+using PersistentMultiplayer.Framework.Helper;
 using StardewModdingAPI;
 
 namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
@@ -164,7 +165,7 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
                 tooltip: () => "What time the host character will automatically go to sleep when the game is in server mode. (Not being controlled by a player)",
                 getValue: () => this._modConfig.ServerSettings.HostCharacterSleepTime,
                 setValue: value => this._modConfig.ServerSettings.HostCharacterSleepTime = value,
-                allowedValues: GetHostCharacterSleepTimes().ToArray()
+                allowedValues: GenericModConfigMenuIntegration.GeneratePossibleHostSleepTimes().ToArray()
             );
             
             this._configMenu?.AddBoolOption(
@@ -220,18 +221,15 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
             );
         }
         
-        private static List<string> GetHostCharacterSleepTimes()
+        private static List<string> GeneratePossibleHostSleepTimes()
         {
             var times = new List<string>();
 
             for (var hour = 18; hour < 26; hour++) {
                 for (var minute = 0; minute < 60; minute += 10) {
-                    var formatHour = hour switch {
-                        24 => 0,
-                        25 => 1,
-                        _ => hour
-                    };
-                    times.Add($"{formatHour:D2}{minute:D2}");
+                    var normalizedHour = TimeHelper.NormalizeHour(hour);
+                   
+                    times.Add($"{normalizedHour:D2}{minute:D2}");
                 }
             }
 
