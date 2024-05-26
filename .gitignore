@@ -1,6 +1,9 @@
 # Ignore .vs directory created by Visual Studio
 .vs/
 
+# Ignore .idea directory
+.idea/
+
 # Ignore bin and obj directories
 bin/
 obj/
