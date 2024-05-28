@@ -25,9 +25,7 @@ server environments.
  - Host character automation includes jobs such as watering crops and feeding animals
  - Host character no longer sleeps in main farmhouse bed, freeing it up for farmhands
 
-### Dedicated Server Mode
-
----
+#### Dedicated Server Mode
 
 Use this mode when you are hosting your server remotely or from within a container (i.e. when playing the host 
 character is difficult to do because of VNC, RDP or similar), the mod will attempt to remove the nuisance of having a host 
@@ -38,8 +36,6 @@ ServerMode off (pressing the appropriate keybind, default: `F10`).
 
 ### Local Server Mode
 
----
-
 Use this mode when you are hosting the server from the same instance of the game you intend to play from, the mod
 will not be intrusive when you are actively playing as the host character.
 
@@ -49,8 +45,6 @@ and leave the game as they wish, the game will pause when no farmhands are conne
 ℹ️  _If you are unsure which server mode to use, you should most likely use Local Server mode._
 
 ## Acknowledgements
-
----
 
 Inspired by [Always On Server for Multiplayer](https://github.com/funny-snek/Always-On-Server-for-Multiplayer) by 
 [funny-snek](https://github.com/funny-snek/Always-On-Server-for-Multiplayer) which provided my friends and I 
