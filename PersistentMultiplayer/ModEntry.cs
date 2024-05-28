@@ -64,8 +64,6 @@ namespace PersistentMultiplayer
             
             if (this._sleepScheduler.IsBedTime() && !HostCharacter.IsSleeping) {
                 this._hostCharacter.GoToSleep();
-            } else {
-                this.Monitor.Log("It is not bed time", LogLevel.Info);
             }
         }
 
@@ -85,16 +83,16 @@ namespace PersistentMultiplayer
         private static void TogglePause()
         {
             Game1.netWorldState.Value.IsPaused = !Game1.netWorldState.Value.IsPaused;
-            var pausedMode = Game1.netWorldState.Value.IsPaused ? "Paused" : "Resumed";
             
+            var pausedMode = Game1.netWorldState.Value.IsPaused ? "Paused" : "Resumed";
             ChatMessenger.Send($"Game {pausedMode}");
         }
 
         private void ToggleServer()
         {
             this.ServerMode = !this.ServerMode;
-            var serverModeStatus = this.ServerMode ? "On" : "Off";
             
+            var serverModeStatus = this.ServerMode ? "On" : "Off";
             ChatMessenger.Send($"Server Mode {serverModeStatus}");
         }
     }

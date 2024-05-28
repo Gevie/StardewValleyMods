@@ -6,35 +6,48 @@ namespace PersistentMultiplayer.Framework
     internal class HostCharacterWarp
     {
         private readonly IModHelper _modHelper;
+        private readonly IMonitor _monitor;
         
-        public HostCharacterWarp(IModHelper modHelper)
+        public HostCharacterWarp(IModHelper modHelper, IMonitor monitor)
         {
             this._modHelper = modHelper;
+            this._monitor = monitor;
         }
         
-        public void To(LocationRequest locationRequest, int tileX, int tileY, int facingDirectionAfterWarp)
+        public void ToBed()
         {
-            if (Game1.player.isRidingHorse()) {
-                Game1.player.mount.dismount();
+            if (HostCharacter.IsInBed) {
+                return;
             }
 
-            if (Game1.player.IsSitting()) {
-                Game1.player.StopSitting(animate: false);
+            var homeOfFarmer = Utility.getHomeOfFarmer(Game1.player);
+            if (homeOfFarmer.GetPlayerBed() is null) {
+                this._monitor.Log(
+                    message: "Cannot find the host's bed for auto sleep, please make sure it is placed in their home.",  
+                    level: LogLevel.Warn
+                );
+                
+                Game1.warpHome();
+                return;
             }
 
-            if (Game1.player.UsingTool) {
-                Game1.player.completelyStopAnimatingOrDoingAction();
-            }
+            // TODO
+            // Use this method to teleport to a hidden off-screen bed when in dedicated server mode, if I decide
+            // not to have an out of bounds hidden bed then this approach becomes redundant, and we should use
+            // the `Game1.warpHome()` method instead of a custom OnWarp delegate for `Game1.warpFarmer(...)`.
             
-            Game1.player.previousLocationName = (Game1.player.currentLocation != null) ? Game1.player.currentLocation.Name : "";
-            Game1.locationRequest = locationRequest;
-            Game1.xLocationAfterWarp = tileX;
-            Game1.yLocationAfterWarp = tileY;
-            this._modHelper.Reflection.GetField<bool>(typeof(Game1), "_isWarping").SetValue(true);
-            Game1.facingDirectionAfterWarp = facingDirectionAfterWarp;
+            var bedSpot = homeOfFarmer.GetPlayerBedSpot();
+            var farmHouseLocationRequest = Game1.getLocationRequest(homeOfFarmer.NameOrUniqueName);
+            farmHouseLocationRequest.OnWarp += delegate {
+                Game1.player.position.Set(Utility.PointToVector2(bedSpot) * 64f);
+            };
             
-            Game1.fadeScreenToBlack();
-            Game1.setRichPresence("location", locationRequest.Name);
+            Game1.warpFarmer(
+                farmHouseLocationRequest, 
+                bedSpot.X / 64, 
+                bedSpot.Y / 64, 
+                Game1.player.FacingDirection
+            );
         }
     }
 }
