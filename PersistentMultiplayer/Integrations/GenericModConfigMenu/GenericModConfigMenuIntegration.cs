@@ -1,5 +1,5 @@
 ﻿using PersistentMultiplayer.Framework.Configuration;
-using PersistentMultiplayer.Framework.Configuration.Constants;
+using PersistentMultiplayer.Framework.Constant;
 using PersistentMultiplayer.Framework.Helper;
 using StardewModdingAPI;
 

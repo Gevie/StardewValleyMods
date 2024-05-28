@@ -10,6 +10,7 @@ namespace PersistentMultiplayer
 {
     internal class ModEntry : Mod
     {
+        private ChatMessageStore _chatStore = null!;
         private HostCharacter _hostCharacter = null!;
         private ModConfig _modConfig = null!;
         private ModConfigKeys ModConfigKeys => this._modConfig.Controls;
@@ -19,6 +20,7 @@ namespace PersistentMultiplayer
         
         public override void Entry(IModHelper helper)
         {
+            this._chatStore = new ChatMessageStore(helper);
             this._modConfig = this.Helper.ReadConfig<ModConfig>();
             this._hostCharacter = new HostCharacter(helper, this.Monitor);
             this._sleepScheduler = new SleepScheduler(this.ServerSettings);
@@ -36,19 +38,20 @@ namespace PersistentMultiplayer
             }
 
             if (this.ModConfigKeys.ToggleServer.JustPressed()) {
-                this.ToggleServer();
+                this.ToggleServerMode();
                 return;
             }
 
             if (this.ModConfigKeys.TogglePause.JustPressed()) {
-                TogglePause();
+                TogglePause(Game1.player);
             }
         }
 
         private void OnDayStarted(object? sender, DayStartedEventArgs dayStartedEventArguments)
         {
             HostCharacter.IsSleeping = false;
-            Game1.timeOfDay = 1830;
+            // HostCharacterMail.Check();
+            //Game1.timeOfDay = 1830;
         }
 
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs gameLaunchedEventArguments)
@@ -58,9 +61,15 @@ namespace PersistentMultiplayer
 
         private void OnOneSecondUpdateTicked(object? sender, OneSecondUpdateTickedEventArgs oneSecondUpdateTickedEventArguments)
         {
+            if (Context.IsWorldReady) {
+                this._chatStore.Refresh();
+            }
+            
             if (!this.ServerMode) {
                 return;
             }
+            
+            ChatMessageHandler.ProcessNext();
             
             if (this._sleepScheduler.IsBedTime() && !HostCharacter.IsSleeping) {
                 this._hostCharacter.GoToSleep();
@@ -80,20 +89,24 @@ namespace PersistentMultiplayer
             );
         }
 
-        private static void TogglePause()
+        private static void TogglePause(Farmer initiatedBy)
         {
             Game1.netWorldState.Value.IsPaused = !Game1.netWorldState.Value.IsPaused;
             
-            var pausedMode = Game1.netWorldState.Value.IsPaused ? "Paused" : "Resumed";
-            ChatMessenger.Send($"Game {pausedMode}");
+            var mode = Game1.netWorldState.Value.IsPaused ? "paused" : "resumed";
+            ChatMessenger.Info($"{initiatedBy.Name} has {mode} the game.");
         }
 
-        private void ToggleServer()
+        private void ToggleServerMode()
         {
             this.ServerMode = !this.ServerMode;
+
+            if (!this.ServerMode) {
+                ChatMessenger.Info($"{Game1.player.Name} has returned, server mode disabled.");
+                return;
+            }
             
-            var serverModeStatus = this.ServerMode ? "On" : "Off";
-            ChatMessenger.Send($"Server Mode {serverModeStatus}");
+            ChatMessenger.Info($"{Game1.player.Name} has gone away, server mode enabled.");
         }
     }
 }

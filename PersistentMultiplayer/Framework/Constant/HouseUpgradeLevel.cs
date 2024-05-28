@@ -1,4 +1,4 @@
-﻿namespace PersistentMultiplayer.Framework.Configuration.Constants
+﻿namespace PersistentMultiplayer.Framework.Constant
 {
     public enum HouseUpgradeLevel
     {

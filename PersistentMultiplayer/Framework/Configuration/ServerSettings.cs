@@ -1,4 +1,4 @@
-﻿using PersistentMultiplayer.Framework.Configuration.Constants;
+﻿using PersistentMultiplayer.Framework.Constant;
 
 namespace PersistentMultiplayer.Framework.Configuration
 {
