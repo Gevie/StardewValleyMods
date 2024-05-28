@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -7,7 +6,7 @@ using StardewValley;
 
 namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
 {
-    /// <summary>The API which lets other mods add a config UI through Generic Mod Config Menu.</summary>
+    /// <summary>The GenericModConfigMenu API Interface copied from their repository to allow 3rd party integration.</summary>
     public interface IGenericModConfigMenuApi
     {
         /*********

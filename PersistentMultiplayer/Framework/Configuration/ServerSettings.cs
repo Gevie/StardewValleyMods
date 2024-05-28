@@ -17,7 +17,7 @@ namespace PersistentMultiplayer.Framework.Configuration
         
         public bool LockPlayerChests { get; set; }
 
-        public ServerMode ServerMode { get; set; } = ServerMode.Local;
+        public ServerType ServerType { get; set; } = ServerType.Local;
         
         public string PetName {
             get => this._petName;
@@ -31,7 +31,7 @@ namespace PersistentMultiplayer.Framework.Configuration
         
         public ProgressionChoice ProgressionChoice { get; set; } = ProgressionChoice.CommunityCenter;
 
-        private string _hostCharacterSleepTime = "2200";
+        private string _hostCharacterSleepTime = "1830";
         
         private string _petName = "Toby";
         
@@ -39,8 +39,7 @@ namespace PersistentMultiplayer.Framework.Configuration
 
         private void SetHostCharacterSleepTime(string twentyFourHourTime)
         {
-            if (twentyFourHourTime.Length != 4 || !int.TryParse(twentyFourHourTime, out _))
-            {
+            if (twentyFourHourTime.Length != 4 || !int.TryParse(twentyFourHourTime, out _)) {
                 throw new ArgumentException(
                     $"Host character sleep time must be a 4 digit time string, i.e. \"0130\" for 01:30, \"{twentyFourHourTime}\" given."
                 );

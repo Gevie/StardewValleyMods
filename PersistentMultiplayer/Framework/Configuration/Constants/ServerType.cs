@@ -1,6 +1,6 @@
 ﻿namespace PersistentMultiplayer.Framework.Configuration.Constants
 {
-    public enum ServerMode
+    public enum ServerType
     {
         Local,
         Dedicated

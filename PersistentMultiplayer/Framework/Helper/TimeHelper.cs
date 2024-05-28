@@ -4,8 +4,7 @@
     {
         public static int NormalizeHour(int hour)
         {
-            return hour switch
-            {
+            return (hour) switch {
                 24 => 0,
                 25 => 1,
                 _ => hour

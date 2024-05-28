@@ -9,6 +9,7 @@ namespace PersistentMultiplayer.Framework
         public static bool IsSleeping { get; set; }
         
         private readonly IModHelper _helper;
+        private HostCharacterWarp _hostCharacterWarp;
         private readonly IMonitor _monitor;
         private bool IsGoingToSleep { get; set; }
         private static bool IsInBed => Game1.player.isInBed.Value;
@@ -18,6 +19,7 @@ namespace PersistentMultiplayer.Framework
         public HostCharacter(IModHelper helper, IMonitor monitor)
         {
             this._helper = helper;
+            this._hostCharacterWarp = new HostCharacterWarp(helper);
             this._monitor = monitor;
         }
 
@@ -29,6 +31,7 @@ namespace PersistentMultiplayer.Framework
 
             try {
                 this.IsGoingToSleep = true;
+                this._monitor.Log($"Attempt to sleep...", LogLevel.Alert);
                 await this.Sleep();
             } finally {
                 this.IsGoingToSleep = false;
@@ -37,15 +40,14 @@ namespace PersistentMultiplayer.Framework
 
         private async Task Sleep()
         {
-            // Introduction of async task for proper handling now means the player is being warped to the entrance
-            // of their farmhouse if they are not already in the farmhouse. The while loop will then timeout
-            // because HostCharacter.IsInBed is false, and providing the player has not left their home - the player
-            // will then successfully teleport to the bed and sleep because ModEntry triggered a new GoToSleep() call.
-            // The previous implementation just fired the events off wildly each applicable tick so this wasn't noticed.
-            // TODO: Check if the player is in their home or not and handle both warps with await / async implementation
-            // TODO: OR more preferably, implement the warp so that it always goes directly to the bed tile regardless.
+            var homeName = Utility.getHomeOfFarmer(Game1.player);
+            var currentLocation = Game1.player.currentLocation;
+            if (Game1.player.currentLocation.NameOrUniqueName != Utility.getHomeOfFarmer(Game1.player).NameOrUniqueName) {
+                this.WarpToBed();
+            }
             
             this.WarpToBed();
+            
             var timeElapsed = 0;
             while (!HostCharacter.IsInBed && timeElapsed < HostCharacter.IsInBedTimeout) {
                 await Task.Delay(HostCharacter.IsInBedCheckInterval);
@@ -88,13 +90,34 @@ namespace PersistentMultiplayer.Framework
                 return;
             }
             
+            var bedSpot = homeOfFarmer.GetPlayerBed().GetBedSpot();
+            var getBedSpot = homeOfFarmer.GetPlayerBedSpot();
+            var entryLocation = homeOfFarmer.getEntryLocation();
+            this._monitor.Log($"Bod Spot: {bedSpot.X}:{bedSpot.Y}", LogLevel.Alert);
+            this._monitor.Log($"Get Bed Spot: {getBedSpot.X}:{getBedSpot.Y}", LogLevel.Alert);
+            this._monitor.Log($"Entry Location: {entryLocation.X}:{entryLocation.Y}", LogLevel.Alert);
+            
             var bed = Utility.PointToVector2(homeOfFarmer.GetPlayerBedSpot()) * 64f;
-            Game1.warpFarmer(
-                locationRequest: Game1.getLocationRequest(homeOfFarmer.NameOrUniqueName), 
-                tileX: (int) bed.X / 64, 
-                tileY: (int) bed.Y / 64, 
-                facingDirectionAfterWarp: 2
-            );
+            
+            this._monitor.Log($"Location Request: {Game1.getLocationRequest(homeOfFarmer.NameOrUniqueName)}", LogLevel.Alert);
+            this._monitor.Log($"tileX: {(int) bed.X / 64}", LogLevel.Alert);
+            this._monitor.Log($"tileY: {(int) bed.Y / 64}", LogLevel.Alert);
+            
+            Game1.warpHome();
+            
+            // LocationRequest obj = getLocationRequest(player.homeLocation.Value);
+            // obj.OnWarp += delegate
+            // {
+            //     player.position.Set(Utility.PointToVector2((currentLocation as FarmHouse).GetPlayerBedSpot()) * 64f);
+            // };
+            // warpFarmer(obj, 5, 9, player.FacingDirection);
+            
+            // this._hostCharacterWarp.To(
+            //     locationRequest: Game1.getLocationRequest(homeOfFarmer.NameOrUniqueName), 
+            //     tileX: (int) bed.X / 64, 
+            //     tileY: (int) bed.Y / 64, 
+            //     facingDirectionAfterWarp: 2
+            // );
         }
     }
 }

@@ -7,15 +7,15 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
 {
     internal class GenericModConfigMenuIntegration
     {
+        private readonly IGenericModConfigMenuApi? _configMenu;
         private ModConfig _modConfig;
         private readonly IManifest _modManifest;
-        private readonly IGenericModConfigMenuApi? _configMenu;
 
         public GenericModConfigMenuIntegration(IManifest modManifest, IModRegistry modRegistry, ModConfig modConfig)
         {
+            this._configMenu = modRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             this._modConfig = modConfig;
             this._modManifest = modManifest;
-            this._configMenu = modRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
         }
 
         public void SetupGenericModConfigMenu(Action save)
@@ -37,6 +37,22 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
             this.AddKeybindsSection();
         }
 
+        private void AddDedicatedServerModeInformation()
+        {
+            this._configMenu?.AddSectionTitle(
+                mod: this._modManifest,
+                text: () => "Dedicated Server Type"
+            );
+            
+            this._configMenu?.AddParagraph(
+                mod: this._modManifest,
+                text: () => "This is best used when you are hosting the server remotely or within a container, where it " +
+                            "is not practical for you to remotely control the host character. The host character will be " +
+                            "fully automated and the mod will attempt to keep the host character out of the game as much " +
+                            "as possible. The host character is still playable when server mode is toggled off."
+            );
+        }
+
         private void AddEnumDropdownBox<TEnum>(string name, string tooltip, Dictionary<string, TEnum> options, Func<TEnum> getValue, Action<TEnum> setValue)
         {
             this._configMenu?.AddTextOption(
@@ -55,36 +71,6 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
             );
         }
 
-        private void AddLocalServerModeInformation()
-        {
-            this._configMenu?.AddSectionTitle(
-                mod: this._modManifest,
-                text: () => "Local Server Mode"
-            );
-            
-            this._configMenu?.AddParagraph(
-                mod: this._modManifest,
-                text: () => "This is best used when you are hosting the server from your own computer and intend to " +
-                            "play as the host character when you're not away. The server will still automate your " +
-                            "character when you are away or pause the game when no players are actively playing."
-            );
-        }
-
-        private void AddDedicatedServerModeInformation()
-        {
-            this._configMenu?.AddSectionTitle(
-                mod: this._modManifest,
-                text: () => "Dedicated Server Mode"
-            );
-            
-            this._configMenu?.AddParagraph(
-                mod: this._modManifest,
-                text: () => "This is best used when you are hosting the server remotely or within a container, so it " +
-                            "is not easy for you to control the host character. The host character be fully automated " +
-                            "and the mod will attempt to keep the host character out of the game as much as possible."
-            );
-        }
-
         private void AddIrreversibleChoicesSection()
         {
             this._configMenu?.AddSectionTitle(
@@ -96,14 +82,14 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
             );
             
             this.AddEnumDropdownBox(
-                name: "Server Mode",
-                tooltip: "The server mode to use, both will act as a server when nobody is playing or the host is away.",
-                options: new Dictionary<string, ServerMode>  {
-                    { "Local", ServerMode.Local },
-                    { "Dedicated", ServerMode.Dedicated }
+                name: "Server Type",
+                tooltip: "Read the Local Server Type and Dedicated Server Type descriptions above.",
+                options: new Dictionary<string, ServerType>  {
+                    { "Local", ServerType.Local },
+                    { "Dedicated", ServerType.Dedicated }
                 },
-                getValue: () => this._modConfig.ServerSettings.ServerMode,
-                setValue: value => this._modConfig.ServerSettings.ServerMode = value
+                getValue: () => this._modConfig.ServerSettings.ServerType,
+                setValue: value => this._modConfig.ServerSettings.ServerType = value
             );
             
             this.AddEnumDropdownBox(
@@ -140,6 +126,46 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
                 },
                 getValue: () => this._modConfig.ServerSettings.ProgressionChoice,
                 setValue: value => this._modConfig.ServerSettings.ProgressionChoice = value
+            );
+        }
+
+        private void AddKeybindsSection()
+        {
+            this._configMenu?.AddSectionTitle(
+                mod: this._modManifest,
+                text: () => "Keybinds"
+            );
+            
+            this._configMenu?.AddKeybindList(
+                mod: this._modManifest,
+                name: () => "Toggle Server Mode",
+                tooltip: () => "The key bind for toggling the server mode on or off",
+                getValue: () => this._modConfig.Controls.ToggleServer,
+                setValue: value => this._modConfig.Controls.ToggleServer = value
+            );
+            
+            this._configMenu?.AddKeybindList(
+                mod: this._modManifest,
+                name: () => "Toggle Pause",
+                tooltip: () => "This keybind allows you to pause and unpause as the host character when not in server mode.",
+                getValue: () => this._modConfig.Controls.TogglePause,
+                setValue: value => this._modConfig.Controls.TogglePause = value
+            );
+        }
+
+        private void AddLocalServerModeInformation()
+        {
+            this._configMenu?.AddSectionTitle(
+                mod: this._modManifest,
+                text: () => "Local Server Type"
+            );
+            
+            this._configMenu?.AddParagraph(
+                mod: this._modManifest,
+                text: () => "This is best used when you are hosting the server from your own computer and intend to " +
+                            "play as the host character when you're not away. Make sure to turn server mode on by " +
+                            "pressing the keybind when you go away, this will make sure your character goes to sleep " +
+                            "at night and pauses the game when no other players are connected etc."
             );
         }
 
@@ -194,30 +220,6 @@ namespace PersistentMultiplayer.Integrations.GenericModConfigMenu
                 max: 100,
                 interval: 1,
                 formatValue: (value) => $"{value}%"
-            );
-        }
-
-        private void AddKeybindsSection()
-        {
-            this._configMenu?.AddSectionTitle(
-                mod: this._modManifest,
-                text: () => "Keybinds"
-            );
-            
-            this._configMenu?.AddKeybindList(
-                mod: this._modManifest,
-                name: () => "Toggle Server Mode",
-                tooltip: () => "The key bind for toggling the server mode on or off",
-                getValue: () => this._modConfig.Controls.ToggleServer,
-                setValue: value => this._modConfig.Controls.ToggleServer = value
-            );
-            
-            this._configMenu?.AddKeybindList(
-                mod: this._modManifest,
-                name: () => "Toggle Pause",
-                tooltip: () => "This keybind allows you to pause and unpause as the host character when not in server mode.",
-                getValue: () => this._modConfig.Controls.TogglePause,
-                setValue: value => this._modConfig.Controls.TogglePause = value
             );
         }
         
