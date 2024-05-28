@@ -39,7 +39,7 @@ ServerMode off (pressing the appropriate keybind, default: `F10`).
 Use this mode when you are hosting the server from the same instance of the game you intend to play from, the mod
 will not be intrusive when you are actively playing as the host character.
 
-Enable server mode (default: `F10`) when you wish to set yourself as away and your farmhands may still connect, play 
+Enable server mode (default: `F10`) when you want to set yourself as away and your farmhands may still connect, play 
 and leave the game as they wish, the game will pause when no farmhands are connected.
 
 ℹ️  _If you are unsure which server mode to use, you should most likely use Local Server mode._
@@ -47,7 +47,7 @@ and leave the game as they wish, the game will pause when no farmhands are conne
 ## Acknowledgements
 
 Inspired by [Always On Server for Multiplayer](https://github.com/funny-snek/Always-On-Server-for-Multiplayer) by 
-[funny-snek](https://github.com/funny-snek/Always-On-Server-for-Multiplayer) which provided my friends and I 
+[funny-snek](https://github.com/funny-snek) which provided my friends and I 
 many hours  of entertainment.
 
 Acknowledgement to [norimicry](https://github.com/norimicry) for his fork of 
